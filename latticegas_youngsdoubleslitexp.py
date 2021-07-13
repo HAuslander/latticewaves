@@ -911,7 +911,7 @@ def  ProcessFile():
   
   TMAX = 500000
  
-  nplotmod = 5000
+  nplotmod = 500
  
   #i_scenario = 0
   
@@ -1012,7 +1012,7 @@ def  ProcessFile():
       subscreen = np.zeros(screen.shape)
       for iscen in range(0, grid.shape[0], 2):
           for j in range(grid.shape[3]):
-              subscreen += grid[iscen, d2split + d2screen, : , j] * grid[iscen+1, d2split + d2screen, : , j]
+              subscreen += grid[iscen, d2split + d2screen, : , j] * grid[min([iscen+1, NScenarios-1]), d2split + d2screen, : , j]
       screen += subscreen
 
      
@@ -1020,7 +1020,7 @@ def  ProcessFile():
       NPer = 20
       if True: # t % pulsetime == 0:
           grid[:, d2split, :NDIM//2 ,:] = np.cos(2 * np.pi * 2 * t / float(NPer)) # 1 #  
-          grid[:, d2split, -NDIM//2: ,:] = -np.cos(2 * np.pi * 2 * t / float(NPer))# -1 #  
+          grid[:, d2split, -NDIM//2: ,:] = np.cos(2 * np.pi * 2 * t / float(NPer))# -1 #  
           grid[:, d2split, :dA ,:] = 0 #  
           grid[:, d2split, -dA: ,:] = 0 #  
           grid[:, d2split, dA+dB:-(dA+dB) ,:] = 0 #  
