@@ -485,28 +485,27 @@ def wavegridupdate(t, grid, gridlatticegas, #fermpenalty, n2penalty, bFermion = 
                 grid[iscen,ix,iy,3] = -1 * grid[iscen,ix,yminusoffset,1]
 
                 if grid[iscen,xplusoffset,iy,2] > 0:
-                    gridlatticegas[iscen,ix,iy,2] += 2 * grid[iscen,xplusoffset,iy,2]
+                    gridlatticegas[iscen,ix,iy,0] += 2 * grid[iscen,xplusoffset,iy,2] # neg lattgas in neg direction == pos latgass
                 elif grid[iscen,xplusoffset,iy,2] < 0:
-                    gridlatticegas[iscen,ix,iy,0] += -2 * grid[iscen,xplusoffset,iy,2]                    
+                    gridlatticegas[iscen,ix,iy,2] += -2 * grid[iscen,xplusoffset,iy,2]                    
                     
                 if grid[iscen,ix,yplusoffset,3] > 0:
-                    gridlatticegas[iscen,ix,iy,3] += 2 * grid[iscen,ix,yplusoffset,3]
+                    gridlatticegas[iscen,ix,iy,1] += 2 * grid[iscen,ix,yplusoffset,3]
                 elif grid[iscen,ix,yplusoffset,3] < 0:
-                    gridlatticegas[iscen,ix,iy,1] += -2 * grid[iscen,ix,yplusoffset,3]
+                    gridlatticegas[iscen,ix,iy,3] += -2 * grid[iscen,ix,yplusoffset,3]
                 
                 if grid[iscen,xminusoffset,iy,0] > 0:
-                    gridlatticegas[iscen,ix,iy,0] += 2 * grid[iscen,xminusoffset,iy,0]
+                    gridlatticegas[iscen,ix,iy,2] += 2 * grid[iscen,xminusoffset,iy,0]
                 elif grid[iscen,xminusoffset,iy,0] < 0:
-                    gridlatticegas[iscen,ix,iy,2] += -2 * grid[iscen,xminusoffset,iy,0]
+                    gridlatticegas[iscen,ix,iy,0] += -2 * grid[iscen,xminusoffset,iy,0]
                     
                 if grid[iscen,ix,yminusoffset,1] > 0:
-                    gridlatticegas[iscen,ix,iy,1] += 2 * grid[iscen,ix,yminusoffset,1]
+                    gridlatticegas[iscen,ix,iy,3] += 2 * grid[iscen,ix,yminusoffset,1]
                 elif grid[iscen,ix,yminusoffset,1] < 0:
-                    gridlatticegas[iscen,ix,iy,3] += -2 * grid[iscen,ix,yminusoffset,1]
+                    gridlatticegas[iscen,ix,iy,1] += -2 * grid[iscen,ix,yminusoffset,1]
                     
                     
-                grid[iscen,ix,iy,2] = -1 * grid[iscen,xminusoffset,iy,0]
-                grid[iscen,ix,iy,3] = -1 * grid[iscen,ix,yminusoffset,1]
+
 
                 #if t == 0 and ix == 1 and iy == 12:
                 #    import pdb; pdb.set_trace()
@@ -558,14 +557,22 @@ def wavegridupdate(t, grid, gridlatticegas, #fermpenalty, n2penalty, bFermion = 
                         if sgnsumamp * intFlipFac < 0:
                             thisdraw = opposite_dir(idraw)
                         grid[iscen,ix,iy,thisdraw] += sgnsumamp * intFlipFac
-                
+                        if sgnsumamp * intFlipFac > 0:
+                            gridlatticegas[iscen,ix,iy,idraw] -= 1 # annihilate a 
+                            if gridlatticegas[iscen,ix,iy,idraw] < 0:
+                                print("where did this go?")
+                                import pdb; pdb.set_trace()
+                        else:
+                            oppidraw = opposite_dir(idraw)
+                            gridlatticegas[iscen,ix,iy,oppidraw] += 1 # annihilate a 
+                            
 
                 for idraw in range(remaining):
                     #import pdb; pdb.set_trace()
                     iidraw = np.random.randint(0,Narc)
                     grid[iscen,ix,iy,iidraw] += sgnsumamp * intFlipFac
                     if sgnsumamp * intFlipFac < 0:
-                        gridlatticegas[iscen,ix,iy,iidraw] += 1
+                        gridlatticegas[iscen,ix,iy,iidraw] += 1 # because it is negative it goes in same direction
                     else:
                         gridlatticegas[iscen,ix,iy,opposite_dir(iidraw)] += 1
                           
@@ -1209,7 +1216,7 @@ def  ProcessFile():
   print("At each time step, we will calculate the OUTGOING flows emanaging from each point (as opposed to the incoming flows converging on a point. ")
 
   print("Depending on different settings wc can use this to generate continuous 'floating-pt' amplitudes, but also discrete waves that converge to the continuous distribution only with a large enough set of runs; in the latter case, the randomness can be driven not just by np.random, but also by a simple lattice-gas/IsingModel particle system.")
-	print("This extra slow variation of the code has the most regularization -- plus-minus pairs being generated so as to reduce the sum squared amplitudes, and having the lattice gas preserve the momentum (though obviously, if you keep driving the slits, and rezeroing the grid and the boundaries, you'll mess up a lot of that symmetry, though if you want to run without that, the extra-regularzed bersion has very few amplitudes with magnitude > 1 so that they can do fermion amplitudes as well ")
+  print("This extra slow variation of the code has the most regularization -- plus-minus pairs being generated so as to reduce the sum squared amplitudes, and having the lattice gas preserve the momentum (though obviously, if you keep driving the slits, and rezeroing the grid and the boundaries, you'll mess up a lot of that symmetry, though if you want to run without that, the extra-regularzed bersion has very few amplitudes with magnitude > 1 so that they can do fermion amplitudes as well ")
 	# declare the 2-d lattice (that has 2*2 outgoing flows at each point.
   NDIMold = 16
   NDIM = 32 # 64 # 100 # must be at least 10 or 20 
