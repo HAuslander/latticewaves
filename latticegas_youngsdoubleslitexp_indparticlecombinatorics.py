@@ -456,9 +456,13 @@ def wavegridupdate(t, grid, #fermpenalty, n2penalty, bFermion = False,
               r2 = np.random.randint(0,Narc-1)
               if r2 >= r1:
                 r2 += 1
-            if bChooseOpposite:
+            elif bChooseOpposite:
               r2 = (r1 + 2) % 4
-            
+            else:
+              r2 = np.random.randint(0,Narc)
+              
+              
+              
             grid[iscen, ix, iy, r1] += sgnamp
             grid[iscen, ix, iy, r2] += sgnamp
             
@@ -1128,7 +1132,7 @@ def  ProcessFile():
   print("Depending on different settings wc can use this to generate continuous 'floating-pt' amplitudes, but also discrete waves that converge to the continuous distribution only with a large enough set of runs; in the latter case, the randomness can be driven not just by np.random, but also by a simple lattice-gas/IsingModel particle system.")
 	
 	# declare the 2-d lattice (that has 2*2 outgoing flows at each point.
-  NDIM = 16 # 64 # 100 # must be at least 10 or 20 
+  NDIM = 4 # 64 # 100 # must be at least 10 or 20 
   if NDIM % 2 == 1:
       print("Make the grid length even parity to make it truly systolic")
       import pdb; pdb.set_trace()
@@ -1214,6 +1218,13 @@ def  ProcessFile():
 
   d2split = 0
   d2screen = [1,2,3,4,6,8,10,12]
+  dellist = []
+  for i in range(len(d2screen)):
+    if d2screen[i] >= grid.shape[1]: 
+        dellist.append(i)
+  dellist.reverse()
+  for i in dellist:
+    del d2screen[i]
   dA = NDIM//2-4 # make it even parity if you want everything to be systolic
   dB = 1
   pulsetime = 8# 12
@@ -1225,6 +1236,7 @@ def  ProcessFile():
   grid[:, d2split, -dA: ,:] = 0 #  
   grid[:, d2split, dA+dB:-(dA+dB) ,:] = 0 #  
 
+  
   for i in range(len(d2screen)):
       grid[:, d2split + d2screen[i], : ,:] = 0 #  
   
@@ -1321,7 +1333,7 @@ def  ProcessFile():
                   #import pdb; pdb.set_trace()
                   
                   if t == 0 or not(bNoWipe):
-                      import pdb; pdb.set_trace()
+                      
                       #grid[i, d2split, dA ,:] = randamp(grid[i, d2split, dA ,:].shape, np.cos(2 * np.pi * (t % NPer) / float(NPer))) # 1 #  
                       #grid[i, d2split, -dA ,:] = randamp(grid[i, d2split, -dA ,:].shape, -np.cos(2 * np.pi * (t % NPer) / float(NPer)))# -1 #  
 
@@ -1333,13 +1345,17 @@ def  ProcessFile():
                           # second opposing boundary condition
                           #grid[iscr, d2split, -dA ,0] = -1 #randamp(grid[:, d2split, -dA ,0].shape, -np.cos(2 * np.pi * (t % NPer) / float(NPer)))# -1 #  
                       
-                      import pdb; pdb.set_trace()
+                      
                       
                       
                       if iscr == 0:
-                          print("here is the sum of amplitudes in LHS of grid (scenario 0): " + str(np.sum(grid[0, 0, 0:8])))
-                          print("here is the sum of amplitudes in RHS of grid (scenario 0): " + str(np.sum(grid[0, 0, 9:])))
-                  
+                      
+                        if grid.shape[1] >= 8:
+                          try:
+                            print("here is the sum of amplitudes in LHS of grid (scenario 0): " + str(np.sum(grid[0, 0, 0:NDIM//2])))
+                            print("here is the sum of amplitudes in RHS of grid (scenario 0): " + str(np.sum(grid[0, 0, 9:])))
+                          except:
+                            import pdb; pdb.set_trace()
                   
                   
           else:
@@ -1479,21 +1495,21 @@ def  ProcessFile():
         
 
 
-      
-      if bDiscrete:
-          for iscen in range(0, grid.shape[0], 2):
-              for j in range(grid.shape[3]):
-                  for iscr in range(subscreen.shape[0]):
-                      subscreen[iscr, :] += grid[iscen, d2split + d2screen[iscr], : , j] * grid[min([iscen+1, NScenarios-1]), d2split + d2screen[iscr], : , j]
-                      subscreenalt[iscr, :] += grid[iscen, d2split + d2screen[iscr] + 1, : , j] * grid[min([iscen+1, NScenarios-1]), d2split + d2screen[iscr], : , j]
-      
-      else:
-          for iscen in range(0, grid.shape[0]):
-              for j in range(grid.shape[3]):
-                  for iscr in range(subscreen.shape[0]):
-                      subscreen[iscr, :] += grid[iscen, d2split + d2screen[iscr], : , j] * grid[min([iscen, NScenarios-1]), d2split + d2screen[iscr], : , j]
-                      subscreenalt[iscr, :] += grid[iscen, d2split + d2screen[iscr] + 1, : , j] * grid[min([iscen, NScenarios-1]), d2split + d2screen[iscr], : , j]
-          
+      if grid.shape[1] > 4:
+        if bDiscrete:
+            for iscen in range(0, grid.shape[0], 2):
+                for j in range(grid.shape[3]):
+                    for iscr in range(subscreen.shape[0]):
+                        subscreen[iscr, :] += grid[iscen, d2split + d2screen[iscr], : , j] * grid[min([iscen+1, NScenarios-1]), d2split + d2screen[iscr], : , j]
+                        subscreenalt[iscr, :] += grid[iscen, d2split + d2screen[iscr] + 1, : , j] * grid[min([iscen+1, NScenarios-1]), d2split + d2screen[iscr], : , j]
+        
+        else:
+            for iscen in range(0, grid.shape[0]):
+                for j in range(grid.shape[3]):
+                    for iscr in range(subscreen.shape[0]):
+                        subscreen[iscr, :] += grid[iscen, d2split + d2screen[iscr], : , j] * grid[min([iscen, NScenarios-1]), d2split + d2screen[iscr], : , j]
+                        subscreenalt[iscr, :] += grid[iscen, d2split + d2screen[iscr] + 1, : , j] * grid[min([iscen, NScenarios-1]), d2split + d2screen[iscr], : , j]
+            
       screen += subscreen
       screenalt += subscreenalt
       
