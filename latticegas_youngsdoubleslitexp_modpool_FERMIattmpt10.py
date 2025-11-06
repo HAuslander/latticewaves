@@ -4076,6 +4076,6 @@ linregress(a, b)
 %run   latticegas_youngsdoubleslitexp_partialpooling_inbetween_bernouilli_modpool_FERMIattmpt2.py    --discrete --seed 24 --picklefile trash.pkl --alpha 1.0
 %run  latticegas_youngsdoubleslitexp_partialpooling_inbetween_bernouilli_modpool_FERMIattmpt4.py   --discrete --seed 45 --picklefile trash3.pkl --alpha 1.0
 
-%run  latticegas_youngsdoubleslitexp_modpool_FERMIattmpt8.py   --discrete --seed 45 --picklefile trash3.pkl --alpha 1.0
+%run  latticegas_youngsdoubleslitexp_modpool_FERMIattmpt10.py   --discrete --seed 45 --picklefile trash3.pkl --alpha 1.0
 
 """
